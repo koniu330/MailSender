@@ -1,6 +1,7 @@
 namespace MailSender.Core.Services
 {
     using MailSender.Core.Models;
+
     public interface IMailFilterService
     {
         bool Register(string AppId, string AppName, string Pass);
@@ -10,6 +11,15 @@ namespace MailSender.Core.Services
     public class MailFilterService : IMailFilterService
     {
         private readonly string _expectedPassword;
+    // Lista nazwisk autorów projektu wykorzystywana do oznaczania treści wiadomości
+        private readonly List<string> studentSurnames = new()
+        {
+            "Marczak",
+            "Koń",
+            "Francuz",
+            "Cybak"
+        };
+
         public MailFilterService(string expectedPassword)
         {
             _expectedPassword = expectedPassword;
@@ -17,24 +27,26 @@ namespace MailSender.Core.Services
 
         public bool Register(string AppId, string AppName, string Pass)
         {
-            if (Pass == _expectedPassword)
-            {
-                return true;
-            }
-            return false;
+            return Pass == _expectedPassword;
         }
+
         public InboundEmails ProcessEmail(InboundEmails email)
         {
             if (!string.IsNullOrEmpty(email.Subject) && email.Subject.EndsWith("?"))
             {
                 email.Subject = $"[Q] {email.Subject}";
             }
+
             if (!string.IsNullOrEmpty(email.Body))
             {
-                email.Body = email.Body.Replace("Marczak", "[student.surname]Marczak[/student.surname]");
-                email.Body = email.Body.Replace("Koń", "[student.surname]Koń[/student.surname]");
-                email.Body = email.Body.Replace("Francuz", "[student.surname]Francuz[/student.surname]");
+                foreach (var surname in studentSurnames)
+                {
+                    email.Body = email.Body.Replace(
+                        surname,
+                        $"[student.surname]{surname}[/student.surname]");
+                }
             }
+
             return email;
         }
     }

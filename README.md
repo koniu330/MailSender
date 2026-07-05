@@ -1,32 +1,26 @@
 # MailSender
 
-MailSender to aplikacja backendowa napisana w **ASP.NET Core (.NET 9)** umożliwiająca rejestrację aplikacji klienckich oraz wysyłanie wiadomości e-mail z wykorzystaniem tokenów JWT i usługi **Brevo**.
+MailSender to aplikacja backendowa napisana w **ASP.NET Core (.NET 9)** umożliwiająca rejestrację aplikacji klienckich oraz wysyłanie wiadomości e-mail z wykorzystaniem tokenów JWT oraz usługi **Brevo**.
 
-Projekt został wykonany w ramach przedmiotu **Programowanie Aplikacji ** na WSEI.
+Projekt został wykonany w ramach przedmiotu **Programowanie Aplikacji Backendowych** na WSEI.
 
 ---
 
 # Główne funkcjonalności
 
-✔ Rejestracja aplikacji klienckiej
-
-✔ Autoryzacja JWT
-
-✔ Dokumentacja API w Swagger
-
-✔ Wysyłanie wiadomości e-mail przez Brevo
-
-✔ Przetwarzanie wiadomości zgodnie z wymaganiami projektu
-
-✔ WebClient umożliwiający wysyłanie wiadomości z poziomu przeglądarki
-
-✔ Przechowywanie poufnych danych z wykorzystaniem User Secrets
+- ✅ Rejestracja aplikacji klienckiej
+- ✅ Autoryzacja z wykorzystaniem JWT
+- ✅ Dokumentacja API w Swagger (OpenAPI)
+- ✅ Wysyłanie wiadomości e-mail przez Brevo
+- ✅ Logika biznesowa zgodna z wymaganiami projektu
+- ✅ WebClient umożliwiający testowanie aplikacji z poziomu przeglądarki
+- ✅ Przechowywanie poufnych danych z wykorzystaniem User Secrets
 
 ---
 
 # Technologie
 
-Projekt został wykonany z wykorzystaniem:
+Projekt został wykonany z wykorzystaniem następujących technologii:
 
 - ASP.NET Core (.NET 9)
 - C#
@@ -43,35 +37,34 @@ Projekt został wykonany z wykorzystaniem:
 
 # Architektura projektu
 
-Projekt został podzielony na trzy warstwy.
+Projekt składa się z trzech głównych projektów backendowych oraz klienta demonstracyjnego WebClient.
 
 ```
 MailSender
 │
 ├── MailSender.Api
-│
-│   • Kontrolery
-│   • Konfiguracja JWT
-│   • Swagger
-│   • Dependency Injection
+│   ├── Controllers
+│   ├── Program.cs
+│   ├── JWT Authentication
+│   ├── Swagger
+│   └── Dependency Injection
 │
 ├── MailSender.Core
-│
-│   • Modele
-│   • Interfejsy
-│   • Logika biznesowa
+│   ├── Models
+│   ├── Interfaces
+│   └── Business Logic
 │
 ├── MailSender.Infrastructure
-│
-│   • BrevoMailSenderProvider
-│   • Integracja z API Brevo
+│   ├── BrevoMailSenderProvider
+│   └── Integracja z Brevo API
 │
 └── WebClient
-    • HTML
-    • JavaScript
+    ├── HTML
+    ├── JavaScript
+    └── TypeScript Client
 ```
 
-Takie rozdzielenie pozwala oddzielić logikę aplikacji od komunikacji z zewnętrznym dostawcą wiadomości.
+Taki podział pozwala oddzielić logikę biznesową od warstwy API oraz komunikacji z zewnętrznym dostawcą wiadomości.
 
 ---
 
@@ -85,7 +78,7 @@ Endpoint
 POST /client-app/register
 ```
 
-umożliwia zarejestrowanie aplikacji klienckiej.
+umożliwia rejestrację aplikacji klienckiej.
 
 Przykładowe żądanie
 
@@ -97,7 +90,7 @@ Przykładowe żądanie
 }
 ```
 
-Po poprawnej weryfikacji zwracany jest token JWT ważny przez **90 dni**.
+Po poprawnej weryfikacji hasła zwracany jest token JWT ważny przez **90 dni**.
 
 Przykładowa odpowiedź
 
@@ -121,9 +114,9 @@ POST /mail/send
 
 jest zabezpieczony tokenem JWT.
 
-Do wykonania żądania wymagane jest wcześniejsze uzyskanie tokena podczas rejestracji aplikacji.
+Do wykonania żądania wymagane jest wcześniejsze zarejestrowanie aplikacji oraz uzyskanie tokena.
 
-Przykładowe dane
+Przykładowe żądanie
 
 ```json
 {
@@ -137,17 +130,11 @@ Przykładowe dane
 
 # Logika biznesowa
 
-Przed wysłaniem wiadomości aplikacja wykonuje dodatkowe operacje wymagane przez specyfikację projektu.
+Przed wysłaniem wiadomości wykonywane są operacje wymagane w specyfikacji projektu.
 
-### 1. Modyfikacja tematu wiadomości
+### Dodawanie prefiksu `[Q]`
 
-Jeżeli temat wiadomości kończy się znakiem zapytania
-
-```
-?
-```
-
-automatycznie dodawany jest prefiks
+Jeżeli temat wiadomości kończy się znakiem zapytania (`?`), automatycznie dodawany jest prefiks:
 
 ```
 [Q]
@@ -167,21 +154,25 @@ Czy działa?
 
 ---
 
-### 2. Oznaczanie nazwiska
+### Oznaczanie nazwiska
 
-Jeżeli treść wiadomości zawiera nazwisko autora projektu
-
-```
-Koń
-```
-
-zostaje ono automatycznie oznaczone
+Jeżeli treść wiadomości zawiera nazwisko jednego z autorów projektu, zostaje ono automatycznie oznaczone:
 
 ```
-[student.surname]Koń[/student.surname]
+[student.surname]Nazwisko[/student.surname]
 ```
 
-zgodnie z wymaganiami projektu.
+Przykład
+
+```
+Test Koń
+```
+
+↓
+
+```
+Test [student.surname]Koń[/student.surname]
+```
 
 ---
 
@@ -195,28 +186,34 @@ Komunikacja realizowana jest przez klasę
 BrevoMailSenderProvider
 ```
 
-wykorzystującą klasę `HttpClient`.
+wykorzystującą `HttpClient`.
 
-Poufne dane (API Key oraz dane nadawcy) przechowywane są poza repozytorium z wykorzystaniem **User Secrets**.
+Poufne dane, takie jak:
+
+- API Key
+- adres nadawcy
+- nazwa nadawcy
+
+przechowywane są poza repozytorium z wykorzystaniem **User Secrets**.
 
 ---
 
 # Swagger
 
-Projekt posiada pełną dokumentację API wygenerowaną przez Swagger.
+Projekt posiada dokumentację API wygenerowaną przez Swagger.
 
 Swagger umożliwia:
 
 - rejestrację aplikacji,
-- pobranie tokena JWT,
-- autoryzację przy pomocy przycisku **Authorize**,
-- testowanie wszystkich endpointów bez użycia zewnętrznych narzędzi.
+- wygenerowanie tokena JWT,
+- autoryzację poprzez przycisk **Authorize**,
+- testowanie wszystkich endpointów bez korzystania z dodatkowych narzędzi.
 
 ---
 
 # WebClient
 
-W projekcie znajduje się prosty klient demonstracyjny.
+Projekt zawiera prostego klienta demonstracyjnego znajdującego się w katalogu
 
 ```
 WebClient/
@@ -224,37 +221,61 @@ WebClient/
 
 Aplikacja umożliwia:
 
-- wklejenie tokena JWT,
-- podanie odbiorcy,
+- wpisanie tokena JWT,
+- podanie odbiorcy wiadomości,
 - wpisanie tematu,
-- wpisanie treści wiadomości,
+- wpisanie treści,
 - wysłanie wiadomości do backendu,
 - wyświetlenie odpowiedzi API.
 
-Dzięki temu możliwe jest przetestowanie działania backendu również bez korzystania ze Swaggera.
+Dzięki temu możliwe jest przetestowanie aplikacji również bez używania Swagger UI.
 
 ---
 
-# Konfiguracja
+# Instalacja
 
-Po pobraniu projektu należy skonfigurować User Secrets.
+Sklonowanie repozytorium
 
+```bash
+git clone -b koniu https://github.com/gmarczak/MailSender.git
+
+cd MailSender
 ```
+
+Przywrócenie zależności
+
+```bash
+dotnet restore
+```
+
+---
+
+# Konfiguracja User Secrets
+
+Przejdź do katalogu projektu API
+
+```bash
 cd MailSender.Api
 ```
 
-```
+Zainicjuj User Secrets
+
+```bash
 dotnet user-secrets init
 ```
 
-Następnie dodać wymagane sekrety.
+Dodaj wymagane ustawienia
 
-```
-JwtSettings:SecretKey
-ExpectedClientPassword
-Brevo:ApiKey
-Brevo:SenderEmail
-Brevo:SenderName
+```bash
+dotnet user-secrets set "JwtSettings:SecretKey" "YOUR_SECRET_KEY"
+
+dotnet user-secrets set "ExpectedClientPassword" "q##waQ53"
+
+dotnet user-secrets set "Brevo:ApiKey" "YOUR_BREVO_API_KEY"
+
+dotnet user-secrets set "Brevo:SenderEmail" "YOUR_EMAIL"
+
+dotnet user-secrets set "Brevo:SenderName" "MailSender"
 ```
 
 Dzięki temu poufne dane nie są przechowywane w repozytorium Git.
@@ -263,15 +284,9 @@ Dzięki temu poufne dane nie są przechowywane w repozytorium Git.
 
 # Uruchomienie projektu
 
-Przywrócenie zależności
+Uruchom aplikację
 
-```
-dotnet restore
-```
-
-Uruchomienie projektu
-
-```
+```bash
 dotnet run --project MailSender.Api
 ```
 
@@ -292,15 +307,17 @@ Projekt został przetestowany w dwóch scenariuszach.
 - rejestracja aplikacji,
 - wygenerowanie tokena JWT,
 - autoryzacja,
-- wysłanie wiadomości,
-- otrzymanie wiadomości e-mail.
+- wysłanie wiadomości e-mail,
+- odebranie wiadomości.
 
 ### WebClient
 
-- wpisanie tokena,
+- wpisanie tokena JWT,
 - wpisanie danych wiadomości,
 - wysłanie wiadomości,
 - odebranie odpowiedzi API.
+
+Po poprawnym wykonaniu operacji wiadomość zostaje wysłana przez usługę Brevo na wskazany adres e-mail.
 
 ---
 
@@ -310,21 +327,26 @@ Projekt został przetestowany w dwóch scenariuszach.
 |-----------|:------:|
 | Backend ASP.NET Core | ✅ |
 | JWT Authentication | ✅ |
-| Swagger | ✅ |
+| Swagger / OpenAPI | ✅ |
 | Rejestracja aplikacji | ✅ |
 | Token JWT (90 dni) | ✅ |
 | Endpoint chroniony JWT | ✅ |
-| Prefix **[Q]** | ✅ |
-| Tagowanie nazwiska | ✅ |
+| Prefiks `[Q]` | ✅ |
+| Oznaczanie nazwiska | ✅ |
 | Integracja z Brevo | ✅ |
 | User Secrets | ✅ |
-| WebClient HTML/JavaScript | ✅ |
+| WebClient HTML / JavaScript | ✅ |
 | Test działania | ✅ |
 
 ---
 
 # Autorzy
 
-Projekt wykonany w ramach przedmiotu **Programowanie Aplikacji Backendowych**.
+Projekt został wykonany przez:
 
-```
+- Grzegorz Marczak
+- Szymon Koń
+- Konrad Francuz
+- Jakub Cybak
+
+w ramach przedmiotu **Programowanie Aplikacji Backendowych** na WSEI.
