@@ -2,7 +2,7 @@
 
 MailSender to aplikacja backendowa napisana w **ASP.NET Core (.NET 9)** umożliwiająca rejestrację aplikacji klienckich oraz wysyłanie wiadomości e-mail z wykorzystaniem tokenów JWT oraz usługi **Brevo**.
 
-Projekt został wykonany w ramach przedmiotu **Programowanie Aplikacji Backendowych** na WSEI.
+Projekt został wykonany w ramach przedmiotu **Programowanie Aplikacji Backendowych**.
 
 ---
 
@@ -349,4 +349,3 @@ Projekt został wykonany przez:
 - Konrad Francuz
 - Jakub Cybak
 
-w ramach przedmiotu **Programowanie Aplikacji Backendowych** na WSEI.
